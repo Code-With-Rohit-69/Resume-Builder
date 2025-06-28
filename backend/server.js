@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 
 import connectDB from "./config/db.js";
 import authRouter from "./routes/auth.route.js";
+import resumeRouter from "./routes/resume.route.js";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/resume", resumeRouter);
 
 app.listen(PORT, () => {
   console.log(`server is lestining on http://localhost:${PORT}`);

@@ -3,7 +3,7 @@ import { User } from "../models/User.model.js";
 
 const protect = async (req, res, next) => {
   try {
-    const token = req.headers.authorization;
+    let token = req.headers.authorization;
 
     if (token && token.startsWith("Bearer")) {
       token = token.split(" ")[1];

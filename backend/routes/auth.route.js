@@ -21,7 +21,7 @@ authRouter.route("/upload-image").post(upload.single("image"), (req, res) => {
   }
 
   const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
-    req.file.fileName
+    req.file.filename
   }`;
 
   return res.status(200).json({ imageUrl });
