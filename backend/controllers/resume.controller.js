@@ -81,7 +81,7 @@ const createResume = async (req, res) => {
       ...defaultResumeData,
     });
 
-    res.status(201).json({ newResume });
+    res.status(201).json(newResume);
   } catch (error) {
     res
       .status(500)

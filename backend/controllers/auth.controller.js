@@ -37,9 +37,7 @@ const registerUser = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    return res
-      .status(201)
-      .json({ success: true, message: "User registered successfully", token });
+    return res.status(201).json({ user, token });
   } catch (error) {
     console.log(`Error in Register controller ${error.message}`);
     return res
@@ -75,9 +73,7 @@ const loginUser = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Login successfully", token });
+    return res.status(200).json({ user, token });
   } catch (error) {
     console.log(`Error in Login controller ${error.message}`);
     return res
@@ -90,7 +86,7 @@ const getUserProfile = async (req, res) => {
   try {
     const userId = req.user;
 
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId.id).select("-password");
 
     if (!user) {
       return res
@@ -98,7 +94,7 @@ const getUserProfile = async (req, res) => {
         .json({ successs: false, message: "User not available" });
     }
 
-    return res.status(200).json({ success: true, user });
+    return res.status(200).json(user);
   } catch (err) {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }

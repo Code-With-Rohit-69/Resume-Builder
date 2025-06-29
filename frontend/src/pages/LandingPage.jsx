@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import HERO_IMG from "../assets/hero-img.png";
 import { useNavigate } from "react-router-dom";
@@ -6,26 +6,40 @@ import { useNavigate } from "react-router-dom";
 import Login from "../pages/Auth/Login.jsx";
 import Signup from "./Auth/Signup.jsx";
 import Modal from "../components/Modal.jsx";
+import { UserContext } from "../context/userContext.jsx";
+import ProfilePhotoSelector from "../components/Inputs/ProfilePhotoSelector.jsx";
+import ProfileInfoCard from "../components/Cards/ProfileInfoCard.jsx";
 
 const LandingPage = () => {
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
   const [openAuthModel, setOpenAuthModel] = useState(false);
   const [currentPage, setCurrentPage] = useState("login");
 
-  const handleCTA = () => {};
+  const handleCTA = () => {
+    if (!user) {
+      setOpenAuthModel(true);
+    } else {
+      navigate("/dashboard");
+    }
+  };
 
   return (
     <div className="w-full min-h-full bg-white">
       <div className="container mx-auto px-4 py-6">
         <header className="flex justify-between items-center mb-16">
           <div className="text-xl font-bold">Resume Builder</div>
-          <button
-            className="bg-purple-100 text-sm font-semibold text-black px-7 py-2.5 rounded-lg hover:bg-gray-600 hover:text-white tracking-colors cursor-pointer"
-            onClick={() => setOpenAuthModel(true)}
-          >
-            Login / Signup
-          </button>
+          {user ? (
+            <ProfileInfoCard />
+          ) : (
+            <button
+              className="bg-purple-100 text-sm font-semibold text-black px-7 py-2.5 rounded-lg hover:bg-gray-600 hover:text-white tracking-colors cursor-pointer"
+              onClick={() => setOpenAuthModel(true)}
+            >
+              Login / Signup
+            </button>
+          )}
         </header>
 
         {/* Hero content */}

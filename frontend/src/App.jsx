@@ -4,11 +4,12 @@ import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Home/Dashboard";
 import EditResume from "./pages/ResumeUpdate/EditResume";
+import UserProvider from "./context/userContext";
 
 const App = () => {
   return (
-    <>
-      <div>
+    <UserProvider>
+      <div className="px-8">
         <Router>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -26,7 +27,7 @@ const App = () => {
           },
         }}
       />
-    </>
+    </UserProvider>
   );
 };
 
