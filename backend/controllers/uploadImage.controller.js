@@ -3,6 +3,11 @@ import path from "path";
 import { Resume } from "../models/Resume.model.js";
 import upload from "../middlewares/upload.middleware.js";
 
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const uploadResumeImages = async (req, res) => {
   try {
     upload.fields([{ name: "thumbnail" }, { name: "profileImage" }])(

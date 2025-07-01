@@ -8,7 +8,7 @@ const SkillInfo = ({ skill, progress, accentColor, bgColor }) => {
 
       {progress > 0 && (
         <Progress
-          progress={progress / 100 / 5}
+          progress={(progress / 100) * 5}
           color={accentColor}
           bgColor={bgColor}
         />

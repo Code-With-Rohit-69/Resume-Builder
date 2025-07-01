@@ -9,7 +9,7 @@ import {
   LuTrash,
   LuTrash2,
 } from "react-icons/lu";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import TitleInput from "../../components/Inputs/TitleInput";
 
@@ -26,6 +26,15 @@ import ProjectsDetailForm from "./Forms/ProjectsDetailForm";
 import CertificationsInfoForm from "./Forms/CertificationsInfoForm";
 import AdditionalInfoForm from "./Forms/AdditionalInfoForm";
 import RenderResume from "../../components/ResumeTemplates/RenderResume";
+import { captureOwnerStack } from "react";
+import {
+  captureElementAsImage,
+  dataURLtoFile,
+  fixTailwindColors,
+} from "../../utils/helper";
+import ThemeSelector from "./ThemeSelector";
+import Modal from "../../components/Modal";
+import axios from "axios";
 
 const EditResume = () => {
   const { resumeId } = useParams();
@@ -127,7 +136,7 @@ const EditResume = () => {
 
       case "contact-info":
         const { email, phone } = resumeData.contactInfo;
-        if (!email.trim() || !/^\$+@\$+\.\$+$/.test(email))
+        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
           errors.push("Valid Email is required");
         if (!phone.trim())
           errors.push("Valid 10-digit phone number is required");
@@ -462,11 +471,91 @@ const EditResume = () => {
     }
   };
 
-  const uploadResumeImages = async () => {};
+  const uploadResumeImages = async () => {
+    try {
+      setIsLoading(true);
 
-  const uploadResumeDetails = async (thumbnailLink, profilePreviewUrl) => {};
+      fixTailwindColors(resumeRef.current);
+      const imageDataUrl = await captureElementAsImage(resumeRef.current);
 
-  const handleDeleteResume = async () => {};
+      const thumbnailFile = dataURLtoFile(
+        imageDataUrl,
+        `resume-${resumeId}.png`
+      );
+
+      const profileImageFile = resumeData?.profileInfo?.profileImg || null;
+      const formData = new FormData();
+
+      if (profileImageFile) {
+        formData.append("profileImage", profileImageFile);
+      }
+      if (thumbnailFile) {
+        formData.append("thumbnail", thumbnailFile);
+      }
+
+      const uploadResponse = await axiosInstance.put(
+        API_PATHS.RESUME.UPLOAD_IMAGES(resumeId),
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const { thumbnailLink, profilePreviewUrl } = uploadResponse.data;
+
+      console.log("RESUME DATA : ", resumeData);
+
+      await uploadResumeDetails(thumbnailLink, profilePreviewUrl);
+
+      toast.success("Resume Updated Successfully");
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error in uploading images: ", error);
+      toast.error("Failed to upload images");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const uploadResumeDetails = async (thumbnailLink, profilePreviewUrl) => {
+    try {
+      setIsLoading(true);
+
+      const response = await axiosInstance.put(
+        API_PATHS.RESUME.UPDATE(resumeId),
+        {
+          ...resumeData,
+          thumbnailLink: thumbnailLink || "",
+          profileInfo: {
+            ...resumeData.profileInfo,
+            profilePreviewUrl: profilePreviewUrl || "",
+          },
+          template: JSON.stringify(resumeData.template),
+        }
+      );
+    } catch (error) {
+      console.error("Error in capturing image: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteResume = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axiosInstance.delete(
+        API_PATHS.RESUME.DELETE(resumeId)
+      );
+      toast.success("Resume Deleted Successfully");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error capturing image: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const reactToPrintIn = useReactToPrint({ contentRef: resumeDownloadRef });
 
@@ -514,7 +603,7 @@ const EditResume = () => {
 
             <button
               className="btn-small-light"
-              onClick={() => handleDeleteResume}
+              onClick={() => handleDeleteResume()}
             >
               <LuTrash2 className="text-[16px]" />
               <span className="hidden md:block">Delete</span>
@@ -531,7 +620,7 @@ const EditResume = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* <div className="bg-white rounded-lg border border-purple-100 overflow-hidden">
+          <div className="bg-white rounded-lg border border-purple-100 overflow-hidden">
             <StepProgress progress={0} />
 
             {renderForm()}
@@ -581,18 +670,56 @@ const EditResume = () => {
                 </button>
               </div>
             </div>
-          </div> */}
+          </div>
 
           <div className="h-[100vh]" ref={resumeRef}>
             <RenderResume
               templateId={resumeData?.template?.theme || ""}
               resumeData={resumeData}
-              colorPalette={resumeData?.template?.colorPalette | []}
+              colorPalette={resumeData?.template?.colorPalette || []}
               containerWidth={baseWidth}
             />
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={openThemeSelector}
+        onClose={() => setOpenThemeSelector(false)}
+        title="Change Theme"
+      >
+        <div className="w-[90vw] h-[80vh]">
+          <ThemeSelector
+            selectedTheme={resumeData?.template}
+            setSelectedTheme={(value) => {
+              setResumeData((prevState) => ({
+                ...prevState,
+                template: value || prevState.template,
+              }));
+            }}
+            resumeData={null}
+            onClose={() => setOpenThemeSelector(false)}
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={openPreviewModal}
+        onClose={() => setOpenPreviewModal(false)}
+        title={resumeData.title}
+        showActionBtn
+        actionBtnText="Download"
+        actionBtnIcon={<LuDownload className="text-[16px]" />}
+        onActionClick={() => reactToPrintIn()}
+      >
+        <div className="w-[90vw] h-[80vh]" ref={resumeDownloadRef}>
+          <RenderResume
+            templateId={resumeData?.template?.theme || ""}
+            resumeData={resumeData}
+            colorPalette={resumeData?.template?.colorPalette || []}
+          />
+        </div>
+      </Modal>
     </DashboardLayout>
   );
 };
