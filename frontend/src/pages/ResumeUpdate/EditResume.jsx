@@ -453,7 +453,10 @@ const EditResume = () => {
         setResumeData((prevState) => ({
           ...prevState,
           title: resumeInfo?.title || "Untitled",
-          template: resumeInfo?.template || prevState?.template,
+          template:
+            typeof resumeInfo?.template === "string"
+              ? JSON.parse(resumeInfo.template)
+              : resumeInfo?.template || prevState.template,
           profileInfo: resumeInfo?.profileInfo || prevState?.profileInfo,
           contactInfo: resumeInfo?.contactInfo || prevState?.contactInfo,
           workExperience:
@@ -461,7 +464,7 @@ const EditResume = () => {
           education: resumeInfo?.education || prevState?.education,
           skills: resumeInfo?.skills || prevState?.skills,
           projects: resumeInfo?.projects || prevState?.projects,
-          certification: resumeInfo?.certification || prevState?.certification,
+          certifications: resumeInfo?.certifications || prevState?.certifications,
           languages: resumeInfo?.languages || prevState?.languages,
           interests: resumeInfo?.interests || prevState?.interests,
         }));
@@ -519,6 +522,7 @@ const EditResume = () => {
       setIsLoading(false);
     }
   };
+
   const uploadResumeDetails = async (thumbnailLink, profilePreviewUrl) => {
     try {
       setIsLoading(true);
@@ -532,7 +536,7 @@ const EditResume = () => {
             ...resumeData.profileInfo,
             profilePreviewUrl: profilePreviewUrl || "",
           },
-          template: JSON.stringify(resumeData.template),
+          template: resumeData.template,
         }
       );
     } catch (error) {

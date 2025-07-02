@@ -45,7 +45,8 @@ const Dashboard = () => {
         {allResumes?.map((resume) => (
           <ResumeSummaryCard
             key={resume?._id}
-            imgUrl={resume?.thumbnailLink || null}
+            imgUrl={resume?.thumbnailLink || resume?.profileInfo?.profilePreviewUrl ||
+    null}
             title={resume.title}
             lastUpdated={
               resume?.updatedAt

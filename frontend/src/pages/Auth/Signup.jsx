@@ -15,7 +15,7 @@ const Signup = ({ setCurrentPage }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  const { updateUser } = useContext(UserContext);
+  const { updateUser, fetchUser } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -60,6 +60,7 @@ const Signup = ({ setCurrentPage }) => {
       if (token) {
         localStorage.setItem("token", token);
         updateUser(response.data);
+        fetchUser()
         navigate("/dashboard");
       }
     } catch (error) {

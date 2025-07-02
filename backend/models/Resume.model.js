@@ -15,8 +15,8 @@ const ResumeSchema = new mongoose.Schema(
       type: String,
     },
     template: {
-      type: String,
-      colorPalette: [String],
+      theme: { type: String },
+      colorPalette: [{ type: String }],
     },
     profileInfo: {
       profilePreviewUrl: String,
@@ -55,7 +55,7 @@ const ResumeSchema = new mongoose.Schema(
         progress: Number,
       },
     ],
-    projects: [
+    projects: [ 
       {
         title: String,
         description: String,
@@ -63,7 +63,7 @@ const ResumeSchema = new mongoose.Schema(
         liveDemo: String,
       },
     ],
-    certification: [
+    certifications: [
       {
         title: String,
         issuer: String,

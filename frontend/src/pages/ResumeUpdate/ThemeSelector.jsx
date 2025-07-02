@@ -45,11 +45,23 @@ const ThemeSelector = ({
 
   useEffect(() => {
     updateBaseWidth();
-    window.addEventListener("resize", updateBaseWidth);
 
-    return () => {
-      window.removeEventListener("resize", updateBaseWidth);
-    };
+    if (selectedTheme?.colorPalette) {
+      const index = themeColorPalette.themeOne.findIndex(
+        (palette) =>
+          JSON.stringify(palette) === JSON.stringify(selectedTheme.colorPalette)
+      );
+
+      if (index !== -1) {
+        setSelectedColorPalette({
+          colors: selectedTheme.colorPalette,
+          index,
+        });
+      }
+    }
+
+    window.addEventListener("resize", updateBaseWidth);
+    return () => window.removeEventListener("resize", updateBaseWidth);
   }, []);
 
   return (

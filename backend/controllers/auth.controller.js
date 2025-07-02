@@ -7,7 +7,7 @@ const generateToken = (userId) => {
 };
 
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, profileImageUrl } = req.body;
   try {
     if (!name || !email || !password) {
       return res
@@ -31,6 +31,7 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      profileImageUrl,
     });
 
     await user.save();

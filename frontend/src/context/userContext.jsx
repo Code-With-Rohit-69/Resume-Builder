@@ -9,6 +9,18 @@ const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUser = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
+      setUser(response.data);
+    } catch (error) {
+      console.log("User not authenciated", error);
+      clearUser();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user) return;
 
@@ -19,22 +31,9 @@ const UserProvider = ({ children }) => {
       return;
     }
 
-    const fetchUser = async () => {
-      try {
-        const response = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
-        setUser(response.data);
-      } catch (error) {
-        console.log("User not authenciated", error);
-        clearUser();
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUser();
   }, []);
 
-  
   const updateUser = (userData) => {
     setUser(userData);
     localStorage.setItem("token", userData.token);
@@ -51,6 +50,7 @@ const UserProvider = ({ children }) => {
     loading,
     updateUser,
     clearUser,
+    fetchUser,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
